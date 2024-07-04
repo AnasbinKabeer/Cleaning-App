@@ -1,0 +1,16 @@
+.addPage-top{
+    display: flex;
+    width: 90%;
+
+    margin-top: 80px;
+}
+
+.addPage-top-back{
+    font-size: 40px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.addPage-top-back:hover{
+    color: rgb(216, 216, 216);
+}
