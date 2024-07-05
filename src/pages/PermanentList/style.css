@@ -1,0 +1,60 @@
+/* .pl-t-no{
+    font-weight: 500;
+} */
+.pl-t-no,
+.pl-t-main-no {
+  width: 50px;
+  text-align: left;
+}
+
+
+.t-main-special, .t-special
+{
+text-align: end;
+}
+.pl-t-no,
+.t-place,
+.t-name,
+.t-edit,
+.t-special {
+
+  border-top: 1px solid black;
+}
+
+
+.delete {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  border-radius: 5px;
+}
+  
+  .delete.deleting {
+    background-color: #d32f2f;
+    cursor: not-allowed;
+  }
+  
+  .delete.deleting::after {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 2px solid white;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-left: 8px;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  

@@ -94,7 +94,7 @@ function CleaningArea() {
                                         <td className='t-quota'>
                                             {editingIndex === index ? (
                                                 <input className='t-quota-input'
-                                                    type="text"
+                                                    type="number"
                                                     value={newQuot}
                                                     onChange={(e) => setNewQuot(e.target.value)}
                                                 />

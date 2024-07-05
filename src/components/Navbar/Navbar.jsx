@@ -39,8 +39,8 @@ const Navbar = () => {
           </div>
         </Link>
 
-        <Link to="/individual" onClick={() => handleClick('/individual')}>
-          <div className={active === '/individual' ? 'link active' : 'link'}>
+        <Link to="/permanent-list" onClick={() => handleClick('/permanent-list')}>
+          <div className={active === '/permanent-list' ? 'link active' : 'link'}>
             <span><IoPerson /></span> Permanent List
           </div>
         </Link>

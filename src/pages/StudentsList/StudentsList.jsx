@@ -121,7 +121,7 @@ function StList() {
                   <th className='t-main-place'>Name</th>
                   <th className='t-main-name'>Status</th>
                   <th className="t-main-edit">Edit</th>
-                  <th>Total: {students.length}</th>
+                  {/* <th>Total: {students.length}</th> */}
                 </tr>
               </thead>
               <tbody>
