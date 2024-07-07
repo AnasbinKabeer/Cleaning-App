@@ -1,11 +1,12 @@
 .nav-bar {
     height: 100vh;
-    width: 450px;
+    width: 550px;
     background-color: rgb(255, 255, 255);
     display: flex;
     flex-direction: column;
     align-items: center;
     flex-wrap: nowrap;
+    position: relative;
 }
 
 .logo-bar {
@@ -40,17 +41,17 @@
     text-decoration: none;
     color: rgb(0, 0, 0);
     height: 50px;
-
     width: 300px;
-    text-align: start;
     margin-top: 15px;
     display: flex;
     align-items: center;
-    justify-content: center;
+   padding-left: 80px;
     cursor: pointer;
     border-radius: 10px;
     transition: 200ms ease-in-out;
     font-size: 16px;
+    box-sizing: border-box;
+    gap: 5px;
 }
 
 .link a {
@@ -74,3 +75,39 @@
 span {
     margin-right: 10px;
 }
+
+
+.hk{
+    margin-top: 8px;
+    font-size: 26px;
+}
+.hi{
+    margin-top: 8px;
+    font-size: 20px;
+}
+
+
+.po{
+    position: relative;
+}
+.logout{
+    
+ margin-top: 90px;
+    float: inline-end;
+    color: #001F3F;
+    font-weight: 500;
+    font-size: 18px;
+    display: flex   ;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.hd{
+    font-size: 26px;
+}
+.logout:hover{
+    color: red;
+    transition: ease-in-out 200ms;
+}
+

@@ -117,7 +117,7 @@ function StList() {
             <table>
               <thead>
                 <tr>
-                  <th className='t-main-no'>No</th>
+                  <th className='cl-t-main-no'>No</th>
                   <th className='t-main-place'>Name</th>
                   <th className='t-main-name'>Status</th>
                   <th className="t-main-edit">Edit</th>
@@ -127,7 +127,7 @@ function StList() {
               <tbody>
                 {students.map((student, index) => (
                   <tr key={index}>
-                    <td className='t-no'>{index + 1}</td>
+                    <td className='cl-t-no'>{index + 1}</td>
                     <td className='t-place'>{student.name}</td>
                     <td className={student.isPresent ? 't-status' : 't-status absent'}>{student.isPresent ? "Present" : "Absent"}</td>
                     <td className="t-edit">

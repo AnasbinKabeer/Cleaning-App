@@ -67,7 +67,7 @@
 .table-data {
   height: 90%;
   background: #fff;
-  margin-top: 10px;
+  margin-top: 15px;
   border-radius: 15px;
   color: #000;
   padding: 10px;
@@ -86,9 +86,9 @@ table {
   width: 90%;
 }
 
-.t-no,
-.t-main-no {
-  width: 100px;
+.cl-t-no,
+.cl-t-main-no {
+  width: 50px;
   text-align: left;
 }
 
@@ -99,24 +99,29 @@ tr {
 }
 
 
-.t-name,
 .t-main-name {
   width: 400px;
   text-align: center;
 }
 
-.t-place,
-.t-main-place {
+.cl-t-name
+{
+  width: 400px;
+  text-align: left;
+}
+
+.cl-t-place,
+.cl-t-main-place {
   width: 200px;
   text-align: left;
 }
 
 
-.t-no,
-.t-place,
-.t-name,
-.t-edit,
-.t-status {
+.cl-t-no,
+.cl-t-place,
+.cl-t-name,
+.cl-t-edit,
+.cl-t-status {
 
   border-top: 1px solid black;
 }
@@ -150,8 +155,153 @@ tr {
 
 .print-btn {
   background: #dc0000;
+  /* position: absolute;
+  bottom: 60px;
+  right:100px; */
 }
 
 .submit-btn {
   background: #006edc;
+}
+
+
+.nd-header{
+  display: none;
+  margin-bottom: 20px;
+}
+
+
+.category{
+color: white;
+padding: 5px 26px;
+  background-color: #004992;
+  display: none;
+  border-radius:10px ;
+
+}
+
+.colun{
+  display: none;
+}
+
+@media print {
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+  }
+
+  .nd-header{
+    display: block;
+  }
+
+  thead{
+    display: none;
+  }
+
+
+  .cl-t-edit{
+    display: none;
+  }
+
+  .cl-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    page-break-inside: avoid;
+  }
+
+  .uppermain {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .left-uppermain {
+    flex: 1;
+    text-align: left;
+  }
+
+  .right-uppermain {
+    flex: 1;
+    text-align: right;
+  }
+
+  .Btn-add, .print-btn, .submit-btn {
+    display: none; /* Hide buttons */
+  }
+
+  .t-link {
+    cursor: default;
+  }
+/* 
+  .table-data {
+ 
+   padding: 0 40px 0 40px;
+  } */
+
+
+  .tablee{
+    padding:  0  40px;
+    box-sizing: border-box;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+
+  }
+
+  th, td {
+  
+    text-align: left;
+    padding: 8px;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  .cl-t-no {
+width: 2%;
+  }
+
+  .cl-t-place {
+font-weight: 600;
+  }
+
+
+
+  .t-btns {
+    display: none; /* Hide buttons */
+  }
+
+  
+  .category{
+    display: inline;
+  }
+
+
+ 
+.cl-t-no,
+.cl-t-place,
+.cl-t-name,
+.cl-t-edit,
+.cl-t-status {
+
+  border-top: none;
+}
+
+.colun{
+  display: block;
+  width: 2%;
+  background-color: white;
+  margin-top: 6px;
+}
+
+.cl-t-no{
+  font-weight: 600;
+}
+
 }

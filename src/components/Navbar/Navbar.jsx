@@ -6,7 +6,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { IoPerson } from "react-icons/io5";
 import { useState } from 'react';
 import { RiFindReplaceFill } from "react-icons/ri";
-
+import { BiLogOut } from "react-icons/bi";
 
 const Navbar = () => {
   const location = useLocation();
@@ -23,34 +23,37 @@ const Navbar = () => {
       <div className="links-bar">
         <Link to="/dashboard" onClick={() => handleClick('/dashboard')}>
           <div className={active === '/dashboard' ? 'link active' : 'link'}>
-            <span><MdSpaceDashboard /></span> Dashboard
+            <span><MdSpaceDashboard className='hk' /></span> Dashboard
           </div>
         </Link>
 
         <Link to="/cleaning" onClick={() => handleClick('/cleaning')}>
           <div className={active === '/cleaning' ? 'link active' : 'link'}>
-            <span><FaLayerGroup /></span> Cleaning List
+            <span><FaLayerGroup className='hi' /></span> Cleaning List
           </div>
         </Link>
 
         <Link to="/list" onClick={() => handleClick('/list')}>
           <div className={active === '/list' ? 'link active' : 'link'}>
-            <span><FaUserGroup /></span> Students List
+            <span><FaUserGroup className='hi' /></span> Students List
           </div>
         </Link>
 
         <Link to="/permanent-list" onClick={() => handleClick('/permanent-list')}>
           <div className={active === '/permanent-list' ? 'link active' : 'link'}>
-            <span><IoPerson /></span> Permanent List
+            <span><IoPerson className='hi' /></span> Permanent List
           </div>
         </Link>
         <Link to="/area" onClick={() => handleClick('/area')}>
           <div className={active === '/area' ? 'link active' : 'link'}>
-            <span><RiFindReplaceFill /></span>
+            <span><RiFindReplaceFill className='hi' /></span>
             Cleaning area
           </div>
         </Link>
-
+        <div className='po'>
+        <div className="logout"> Logout <BiLogOut className='hd' /></div>
+        </div>
+    
       </div>
 
     </div>

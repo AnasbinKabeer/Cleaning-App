@@ -1,101 +1,96 @@
 import { useState } from 'react';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { app } from '../../firebase/config'; // Adjust the import path if necessary
-import { shuffleArray } from './utils'; // Assuming you have a utility function to shuffle an array
+import { getFirestore, doc, getDoc, addDoc, collection } from 'firebase/firestore';
+import { app } from '../../firebase/config';
+import { useNavigate } from 'react-router-dom';
 
 const db = getFirestore(app);
 
 const CleaningManagement = () => {
-  const [specialLevels, setSpecialLevels] = useState({});
-  const [generalLevels, setGeneralLevels] = useState({});
-  const [specialPlaces, setSpecialPlaces] = useState({});
-  const [generalPlaces, setGeneralPlaces] = useState({});
+  const navigate = useNavigate();
+  const [cleaningData, setCleaningData] = useState(null);
+
+  const shuffleArray = (array) => {
+    return array.sort(() => Math.random() - 0.5);
+  };
 
   const fetchAndProcessData = async () => {
-    const levels = ['level1', 'level2', 'level3', 'level4', 'level5'];
-    let filteredData = {};
-    let specialPlaces = {};
-    let generalPlaces = {};
+    try {
+      // Fetch students data
+      const levels = ['level1', 'level2', 'level3', 'level4', 'level5'];
+      const studentPromises = levels.map(level => getDoc(doc(db, 'students', level)));
+      const studentDocs = await Promise.all(studentPromises);
 
-    // Fetch and filter student data
-    for (const level of levels) {
-      const docRef = doc(db, 'students', level);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const students = docSnap.data().students;
-        filteredData[level] = students.filter(student => student.isPresent && !student.isPermanent);
-      } else {
-        console.log(`No such document: ${level}`);
-      }
+      const filteredLevels = studentDocs.map((docSnapshot, index) => {
+        const students = docSnapshot.data().students;
+        return students.filter(student => student.isPresent && !student.isPermanent).map(student => student.name);
+      });
+
+      const shuffledLevels = filteredLevels.map(level => shuffleArray(level));
+      const specialLevels = shuffledLevels.map(level => level.slice(0, 5));
+      const generalLevels = shuffledLevels.map(level => level.slice(5));
+
+      // Combine all general levels into one pool
+      const combinedGeneralLevels = [].concat(...generalLevels);
+      shuffleArray(combinedGeneralLevels);  // Shuffle the combined pool
+
+      // Fetch cleaningPlace data
+      const places = ['Masjid', 'MNC Ground Floor', 'MNC First Floor', 'MNC Second Floor', 'MNC Outside'];
+      const placePromises = places.map(place => getDoc(doc(db, 'cleaningPlace', place)));
+      const placeDocs = await Promise.all(placePromises);
+
+      const generalPlaces = placeDocs.map(docSnapshot => {
+        const cleaningPlaces = docSnapshot.data().cleaningPlace;
+        return cleaningPlaces.filter(place => !place.isPermanet && !place.isSpeacialPlace).map(place => ({ place: place.place, quot: place.quot }));
+      });
+
+      const specialPlaces = placeDocs.map(docSnapshot => {
+        const cleaningPlaces = docSnapshot.data().cleaningPlace;
+        return cleaningPlaces.filter(place => !place.isPermanet && place.isSpeacialPlace).map(place => place.place);
+      });
+
+      // Flatten final data to avoid nested arrays and add category
+      const finalData = [];
+      generalPlaces.forEach((placeList, index) => {
+        const category = places[index];
+        placeList.forEach((place) => {
+          const studentNames = combinedGeneralLevels.splice(0, place.quot);
+          finalData.push({
+            place: place.place,
+            students: studentNames,
+            category: category
+          });
+        });
+      });
+
+      // Prepare the data to be sent to Firestore
+      const dataToSave = {
+        finalData,
+        generatedDate: new Date().toISOString()
+      };
+
+      // Save the data to Firestore
+      await addDoc(collection(db, 'cleaningList'), dataToSave);
+
+      // Log intermediate and final data
+      console.log(specialLevels)
+
+      setCleaningData(dataToSave);
+
+      setTimeout(() => {
+        window.location.href = '/cleaning';
+      }, 1000); // 5000 milliseconds = 5 seconds
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
 
-    // Shuffle student data
-    let shuffledData = {};
-    for (const level in filteredData) {
-      shuffledData[level] = shuffleArray(filteredData[level]);
-    }
-
-    // Assign special and general student levels
-    let specialLevels = {};
-    let generalLevels = {};
-    for (const level in shuffledData) {
-      specialLevels[level] = shuffledData[level].slice(0, 5);
-      generalLevels[level] = shuffledData[level].slice(5);
-    }
-
-    // Fetch and filter cleaning place data
-    const places = ['Masjid', 'MNC Ground Floor', 'MNC First Floor', 'MNC Second Floor', 'MNC Outside'];
-    for (const place of places) {
-      const docRef = doc(db, 'cleaningPlace', place);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const cleaningPlaces = docSnap.data().cleaningPlace;
-        specialPlaces[place] = cleaningPlaces.filter(place => !place.isPermanet && place.isSpeacialPlace);
-        generalPlaces[place] = cleaningPlaces.filter(place => !place.isPermanet && !place.isSpeacialPlace);
-      } else {
-        console.log(`No such document: ${place}`);
-      }
-    }
-
-    // Update state
-    setSpecialLevels(specialLevels);
-    setGeneralLevels(generalLevels);
-    setSpecialPlaces(specialPlaces);
-    setGeneralPlaces(generalPlaces);
-
-    // Log the results
-    console.log('Special Levels:', specialLevels);
-    console.log('General Levels:', generalLevels);
-    console.log('Special Places:', specialPlaces);
-    console.log('General Places:', generalPlaces);
-
-    // Log the place values
-    console.log('Special Places:');
-    for (const place in specialPlaces) {
-      specialPlaces[place].forEach(p => console.log(p.place));
-    }
-    console.log('General Places:');
-    for (const place in generalPlaces) {
-      generalPlaces[place].forEach(p => console.log(p.place));
-    }
-
-    // Log the name values
-    console.log('Special Levels Names:');
-    for (const level in specialLevels) {
-      specialLevels[level].forEach(s => console.log(s.name));
-    }
-    console.log('General Levels Names:');
-    for (const level in generalLevels) {
-      generalLevels[level].forEach(s => console.log(s.name));
-    }
+    
   };
 
   return (
     <div>
       <button onClick={fetchAndProcessData}>Generate List</button>
-      <pre>
-        {JSON.stringify({ specialLevels, generalLevels, specialPlaces, generalPlaces }, null, 2)}
-      </pre>
+      {cleaningData && <pre>{JSON.stringify(cleaningData, null, 2)}</pre>}
     </div>
   );
 };
