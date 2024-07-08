@@ -65,7 +65,7 @@ function PermanentList() {
         if (placeIndex !== -1) {
           // Update the place's isPermanent field to false
           const updatedPlace = [...placeData.cleaningPlace];
-          updatedPlace[placeIndex].isPermanent = false;
+          updatedPlace[placeIndex].isPermanet = false;
 
           // Update the place document with the modified array
           await updateDoc(placeDocRef, {

@@ -111,3 +111,13 @@ span {
     transition: ease-in-out 200ms;
 }
 
+@media only screen and (min-width: 768px) and (max-width: 1024px){
+    .nav-bar{
+        width: 450px;
+    }
+
+    .link{
+        width: 230px;
+        padding-left:44px;
+    }
+}

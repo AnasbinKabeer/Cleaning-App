@@ -177,11 +177,45 @@ padding: 5px 26px;
   background-color: #004992;
   display: none;
   border-radius:10px ;
+  font-size: 24px;
 
 }
 
 .colun{
   display: none;
+}
+
+
+@media only screen and (min-width: 768px) and (max-width: 1024px)   {
+  body {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+ 
+  }
+  
+.table-data {
+  height: 100%;
+}
+
+.t-link{
+  overflow: hidden;
+  text-align: center;
+
+  padding: 0 5px;
+}
+}
+
+
+@media screen and (min-height: 710px) and (max-height: 730px) {
+  body {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px
+  }
+
+    
+.table-data {
+  height: 78%;
+}
 }
 
 @media print {

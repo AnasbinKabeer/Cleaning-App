@@ -16,10 +16,15 @@ import PermanentList from "./pages/PermanentList/PermanentList";
 import AddPermanentList from "./pages/Add-Components/AddPermanentList";
 import CleaningListPage from "./pages/Add-Components/Finaldata";
 import './App.css';
+import GenerateNew from './pages/Add-Components/GenerateNew';
+import Listed from './pages/Add-Components/listed';
+
+
 
 const App = () => {
-  const [cleaningList, setCleaningList] = useState([]);
 
+  const [cleaningList, setCleaningList] = useState([]);
+  
   useEffect(() => {
     const fetchCleaningList = async () => {
       const db = getFirestore(app);
@@ -42,7 +47,9 @@ const App = () => {
     fetchCleaningList();
   }, []);
 
+
   return (
+    
     <div className="App">
       <Router>
         <Navbar />
@@ -58,6 +65,8 @@ const App = () => {
           <Route path="/permanent-list" element={<PermanentList />} />
           <Route path="/add-permanent" element={<AddPermanentList />} />
           <Route path="/show" element={<CleaningListPage />} />
+          <Route path="/generate-new" element={<GenerateNew/>} />
+          <Route path="/listed" element={<Listed/>} />
         </Routes>
       </Router>
     </div>
