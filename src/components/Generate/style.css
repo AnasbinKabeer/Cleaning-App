@@ -1,0 +1,70 @@
+.form {
+    display: flex;
+    flex-direction: column;
+  align-items: start;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #007bff;
+  }
+  
+  .form-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+color: black;
+  }
+  
+  .label {
+    font-weight: bold;
+    width: 150px;
+  }
+  
+  .select {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+  }
+  
+  .button {
+    height: 36px;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+  }
+  
+  .button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  .button:active {
+    transform: scale(0.95);
+  }
+  
+  .button:not(:disabled):hover {
+    background-color: #0056b3;
+  }
+  
+
+  .gbtn{
+    align-self: flex-end;
+  }
+
+  .bgbtn{
+    width: 100%;
+  }
+
+
+.newlist{
+  text-align: center;
+  width: 100%;
+}
