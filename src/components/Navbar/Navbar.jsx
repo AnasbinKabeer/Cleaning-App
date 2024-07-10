@@ -21,8 +21,8 @@ const Navbar = () => {
     <div className="nav-bar">
       <div className="logo-bar">SOCIAL CLIQUE</div>
       <div className="links-bar">
-        <Link to="/dashboard" onClick={() => handleClick('/dashboard')}>
-          <div className={active === '/dashboard' ? 'link active' : 'link'}>
+        <Link to="/" onClick={() => handleClick('/')}>
+          <div className={active === '/' ? 'link active' : 'link'}>
             <span><MdSpaceDashboard className='hk' /></span> Dashboard
           </div>
         </Link>
