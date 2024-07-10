@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteField  } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteField } from "firebase/firestore";
 import { app } from "../../firebase/config";
+import './style.css';
 
 const db = getFirestore(app);
 
@@ -15,8 +16,22 @@ const Generate = () => {
     "MNC Second Floor": "",
     "MNC Outside": "",
   });
+  const [generateClicked, setGenerateClicked] = useState({
+    Masjid: false,
+    "MNC Ground Floor": false,
+    "MNC First Floor": false,
+    "MNC Second Floor": false,
+    "MNC Outside": false,
+  });
+  const [checkEnabled, setCheckEnabled] = useState(false);
+  const [submitEnabled, setSubmitEnabled] = useState(false);
+  const [loadingButton, setLoadingButton] = useState(null);
 
-  // Utility Functions
+  useEffect(() => {
+    const allGenerated = Object.values(generateClicked).every(val => val);
+    setCheckEnabled(allGenerated);
+  }, [generateClicked]);
+
   const fetchCollectionData = async (collectionName, docId) => {
     const docRef = doc(db, collectionName, docId);
     const docSnap = await getDoc(docRef);
@@ -37,11 +52,12 @@ const Generate = () => {
     return array;
   };
 
-  // Event Handlers
   const handleGenerate = async (place) => {
+    setLoadingButton(place);
     const level = selectedLevels[place];
     if (!level) {
       console.log(`No level selected for ${place}`);
+      setLoadingButton(null);
       return;
     }
 
@@ -50,13 +66,13 @@ const Generate = () => {
 
     if (studentsData && cleaningPlacesData) {
       let students = studentsData.students.filter(student => student.isPresent && !student.isPermanent);
-      students = shuffleArray(students).slice(5); // Shuffle and take after the 5th student
+      students = shuffleArray(students).slice(5);
 
       let assignedPlaces = [];
       let studentIndex = 0;
 
       cleaningPlacesData.cleaningPlace
-        .filter(place => !place.isPermanet) // Filter out permanent places
+        .filter(place => !place.isPermanent)
         .forEach(place => {
           let assignedStudents = [];
           for (let i = 0; i < place.quot && studentIndex < students.length; i++) {
@@ -69,10 +85,11 @@ const Generate = () => {
           });
         });
 
-      // Save to local storage and log to console
       localStorage.setItem(`${place}List`, JSON.stringify(assignedPlaces));
       console.log(`${place} List:`, assignedPlaces);
+      setGenerateClicked(prevState => ({ ...prevState, [place]: true }));
     }
+    setLoadingButton(null);
   };
 
   const handleLevelChange = (place, level) => {
@@ -115,74 +132,94 @@ const Generate = () => {
     });
 
     console.log("All updated data:", allUpdatedPlaces);
+    setSubmitEnabled(true);
   };
 
   const handleSubmit = async () => {
     const generatedData = {};
     const cleaningPlaces = ['Masjid', 'MNC Ground Floor', 'MNC First Floor', 'MNC Second Floor', 'MNC Outside'];
-  
-    // Fetch and prepare new data
+
     cleaningPlaces.forEach(place => {
       const placeList = JSON.parse(localStorage.getItem(`${place}List`));
       generatedData[place] = placeList;
     });
-  
+
     try {
       const ref = collection(db, "generatedList");
       const querySnapshot = await getDocs(ref);
-      
-      // Loop through each document and delete all fields
+
       for (const docSnapshot of querySnapshot.docs) {
         const docRef = doc(db, "generatedList", docSnapshot.id);
         const docData = docSnapshot.data();
         const updatedData = {};
-  
-        // Mark all fields for deletion
+
         for (const field in docData) {
           updatedData[field] = deleteField();
         }
-  
+
         await updateDoc(docRef, updatedData);
       }
-  
-      // Submit new data
+
       for (const [place, data] of Object.entries(generatedData)) {
         await setDoc(doc(db, "generatedList", `${place}`), { data });
       }
-  
+
       console.log("Data submitted successfully:", generatedData);
-  
-      // Clear local storage after successful submission
+
       cleaningPlaces.forEach(place => {
         localStorage.removeItem(`${place}List`);
       });
-  
+
       console.log("Local storage cleared successfully");
     } catch (error) {
       console.error("Error submitting data:", error);
     }
   };
-  // Render Logic
+
   return (
     <div className="form">
+      <h2 className="newlist" >Generate New List</h2>
       {cleaningPlaces.map((place, index) => (
-        <div key={index}>
-          <label htmlFor={place}>{place}</label>
+        <div key={index} className="form-group">
+          <label htmlFor={place} className="label">{place}:</label>
           <select
             name={place.toLowerCase().replace(/ /g, "_")}
             onChange={(e) => handleLevelChange(place, e.target.value)}
             value={selectedLevels[place]}
+            className="select"
           >
             <option value="" disabled>Select Level</option>
             {getAvailableLevels(place).map(level => (
               <option key={level} value={level}>{level}</option>
             ))}
           </select>
-          <button onClick={() => handleGenerate(place)}>Generate {place} List</button>
+          <button 
+            onClick={() => handleGenerate(place)} 
+            disabled={generateClicked[place]}
+            className={`button ${loadingButton === place ? "rotating" : ""}`}
+          >
+            {loadingButton === place ? (
+              <div className="spinner"></div>
+            ) : (
+              `GenerateList`
+            )}
+          </button>
         </div>
       ))}
-      <button onClick={handleCheck}>Check</button>
-      <button onClick={handleSubmit}>Submit</button>
+      <button 
+        onClick={handleCheck} 
+        disabled={!checkEnabled}
+        className="button bgbtn"
+      >
+        Check
+      </button>
+      <button 
+        onClick={handleSubmit} 
+        disabled={!submitEnabled}
+        className="button bgbtn"
+      >
+        Submit
+      </button>
     </div>
   );
 }
