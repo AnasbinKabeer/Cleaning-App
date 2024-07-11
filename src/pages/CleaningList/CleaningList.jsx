@@ -63,9 +63,9 @@ function CleaningList() {
           const data = doc.data();
           const cleaningArea = data.cleaningArea;
           const cleaningCategory = data.cleaningCategory;
-          const student = data.student;
+          const students = data.students;
 
-          fetchedPermanentData.push({ cleaningArea, cleaningCategory, student });
+          fetchedPermanentData.push({ cleaningArea, cleaningCategory, students });
         });
         setPermanentData(fetchedPermanentData);
         setFilteredPermanentData(fetchedPermanentData.filter(item => item.cleaningCategory === 'Masjid')); // Apply default filter
@@ -144,17 +144,18 @@ function CleaningList() {
                   );
                 })}
 
-                {filteredPermanentData.map((item, index) => (
-                  <tr key={index + lastIndex}>
-                    <td className='cl-t-no'>{lastIndex + index + 1 + ")"}</td>
-                    <td className='cl-t-place'>{item.cleaningArea}</td>
-                    <td className='colun'>:</td>
-                    <td className='cl-t-name'>{item.student}</td>
-                    <td className='cl-t-edit'>
-                      <input type="checkbox" defaultChecked={item.status} />
-                    </td>
-                  </tr>
-                ))}
+{filteredPermanentData.map((item, index) => (
+  <tr key={index}>
+    <td className='cl-t-no'>{lastIndex + index + 1 + ")"}</td>
+    <td className='cl-t-place'>{item.cleaningArea}</td>
+    <td className='colun'>:</td>
+    <td className='cl-t-name'>{item.students}</td>
+    <td className='cl-t-edit'>
+      <input type="checkbox" defaultChecked={item.status} />
+    </td>
+  </tr>
+))}
+
               </tbody>
             </table>
           </center>
