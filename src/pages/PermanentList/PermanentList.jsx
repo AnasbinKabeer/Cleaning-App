@@ -120,7 +120,7 @@ function PermanentList() {
                     <td className='pl-t-no'>{index + 1}</td>
                     <td className='t-place'>{item.cleaningCategory}</td>
                     <td className='t-place'>{item.cleaningArea}</td>
-                    <td className="t-place">{item.student}</td>
+                    <td className="t-place">{item.students}</td>
                     <td className="t-special">
                       <button 
                         onClick={() => handleDelete(item.id, item.studentLevel, item.student, item.cleaningCategory, item.cleaningArea)} 
