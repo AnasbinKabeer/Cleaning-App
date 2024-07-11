@@ -66,7 +66,7 @@ const Generate = () => {
 
     if (studentsData && cleaningPlacesData) {
       let students = studentsData.students.filter(student => student.isPresent && !student.isPermanent);
-      students = shuffleArray(students).slice(5);
+      students = shuffleArray(students).slice(2);
 
       let assignedPlaces = [];
       let studentIndex = 0;
