@@ -1,145 +1,188 @@
-import './style.css';
-import { useNavigate } from 'react-router-dom';
-import { IoIosAddCircleOutline } from "react-icons/io";
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer, toast } from 'react-toastify';
-import { getFirestore, getDocs, collection, deleteDoc, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc } from 'firebase/firestore';
 import { app } from '../../firebase/config';
-import { useEffect, useState } from 'react';
+import './style.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const db = getFirestore(app);
 
-function PermanentList() {
-  const [data, setData] = useState([]);
-  const [deletingId, setDeletingId] = useState(null);
-  const navigate = useNavigate();
+function PermanentForm() {
+  const [cleaningCategories, setCleaningCategories] = useState([]);
+  const [cleaningAreas, setCleaningAreas] = useState([]);
+  const [selectedCleaningCategory, setSelectedCleaningCategory] = useState('');
 
-  const handleAdd = () => {
-    navigate('/add-permanent');
-  };
+  const [studentLevels, setStudentLevels] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [selectedStudentLevel, setSelectedStudentLevel] = useState('');
+
+  const [selectedStudents, setSelectedStudents] = useState(['', '']);
+  const [selectedCleaningArea, setSelectedCleaningArea] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db, 'permanentList'));
-      const tempData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setData(tempData);
+    const fetchCleaningCategories = async () => {
+      const querySnapshot = await getDocs(collection(db, 'cleaningPlace'));
+      const categories = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCleaningCategories(categories);
     };
 
-    fetchData();
+    const fetchStudentLevels = async () => {
+      const querySnapshot = await getDocs(collection(db, 'students'));
+      const levels = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setStudentLevels(levels);
+    };
+
+    fetchCleaningCategories();
+    fetchStudentLevels();
   }, []);
 
-  const handleDelete = async (id, studentLevel, studentName, placeCategory, area) => {
-    try {
-      setDeletingId(id);
+  const handleCleaningCategoryChange = async (event) => {
+    const selectedCategory = event.target.value;
+    setSelectedCleaningCategory(selectedCategory);
 
-      // Fetch the specific student document
-      const studentDocRef = doc(db, 'students', studentLevel);
-      const studentDocSnapshot = await getDoc(studentDocRef);
-      const studentData = studentDocSnapshot.data();
-
-      if (studentData) {
-        // Find the student in the array
-        const studentIndex = studentData.students.findIndex(stud => stud.name === studentName);
-
-        if (studentIndex !== -1) {
-          // Update the student's isPermanent field to false
-          const updatedStudents = [...studentData.students];
-          updatedStudents[studentIndex].isPermanent = false;
-
-          // Update the student document with the modified array
-          await updateDoc(studentDocRef, {
-            students: updatedStudents
-          });
-        }
+    if (selectedCategory) {
+      const docRef = doc(db, 'cleaningPlace', selectedCategory);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setCleaningAreas(docSnap.data().cleaningPlace || []);
       }
+    } else {
+      setCleaningAreas([]);
+    }
+  };
 
-      // Fetch the specific place document
-      const placeDocRef = doc(db, 'cleaningPlace', placeCategory);
-      const placeDocSnapshot = await getDoc(placeDocRef);
-      const placeData = placeDocSnapshot.data();
+  const handleStudentLevelChange = async (event) => {
+    const selectedLevel = event.target.value;
+    setSelectedStudentLevel(selectedLevel);
 
-      if (placeData) {
-        // Find the place in the array
-        const placeIndex = placeData.cleaningPlace.findIndex(ar => ar.place === area);
-
-        if (placeIndex !== -1) {
-          // Update the place's isPermanent field to false
-          const updatedPlace = [...placeData.cleaningPlace];
-          updatedPlace[placeIndex].isPermanet = false;
-
-          // Update the place document with the modified array
-          await updateDoc(placeDocRef, {
-            cleaningPlace: updatedPlace
-          });
-        }
+    if (selectedLevel) {
+      const docRef = doc(db, 'students', selectedLevel);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setStudents(docSnap.data().students || []);
       }
+    } else {
+      setStudents([]);
+    }
+  };
 
-      // Delete the document from the permanentList collection
-      await deleteDoc(doc(db, 'permanentList', id));
+  const handleStudentChange = (index, event) => {
+    const newSelectedStudents = [...selectedStudents];
+    newSelectedStudents[index] = event.target.value;
+    setSelectedStudents(newSelectedStudents);
+  };
 
-      // Update the local state to remove the deleted item
-      setData(data.filter(item => item.id !== id));
-      // toast.success('Successfully deleted from Permanent List', { autoClose: 3000 });
-    } catch (error) {
-      console.error('Error deleting item: ', error);
-      toast.error('Error deleting item', { autoClose: 3000 });
-    } finally {
-      setDeletingId(null);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (selectedCleaningCategory && selectedCleaningArea && selectedStudentLevel && selectedStudents[0]) {
+      const studentsToAssign = selectedStudents.filter(student => student);
+      const assignment = {
+        cleaningCategory: selectedCleaningCategory,
+        cleaningArea: selectedCleaningArea,
+        studentLevel: selectedStudentLevel,
+        students: studentsToAssign
+      };
+
+      try {
+        // Add assignment to permanentList collection
+        const docRef = await addDoc(collection(db, 'permanentList'), assignment);
+        toast.success('Successfully Added to Permanent List', { autoClose: 3000 });
+
+        // Update isPermanent to true for selected students in students collection
+        const studentDocRef = doc(db, 'students', selectedStudentLevel);
+        const studentDocSnap = await getDoc(studentDocRef);
+        if (studentDocSnap.exists()) {
+          const studentData = studentDocSnap.data().students;
+          const updatedStudents = studentData.map(student => {
+            if (studentsToAssign.includes(student.name)) {
+              return { ...student, isPermanent: true };
+            }
+            return student;
+          });
+
+          await updateDoc(studentDocRef, { students: updatedStudents });
+        }
+
+        // Update isPermanent to true for selected cleaning place in cleaningPlace collection
+        const cleaningPlaceDocRef = doc(db, 'cleaningPlace', selectedCleaningCategory);
+        const cleaningPlaceDocSnap = await getDoc(cleaningPlaceDocRef);
+
+        if (cleaningPlaceDocSnap.exists()) {
+          const cleaningPlaceData = cleaningPlaceDocSnap.data().cleaningPlace;
+          const updatedCleaningPlaces = cleaningPlaceData.map(place => {
+            if (place.place === selectedCleaningArea) {
+              return { ...place, isPermanent: true };
+            }
+            return place;
+          });
+
+          await updateDoc(cleaningPlaceDocRef, { cleaningPlace: updatedCleaningPlaces });
+        }
+
+        // Optionally, you can reset the form fields here
+        setSelectedCleaningCategory('');
+        setSelectedCleaningArea('');
+        setSelectedStudentLevel('');
+        setSelectedStudents(['', '']);
+
+      } catch (error) {
+        console.error('Error adding assignment or updating isPermanent: ', error);
+        toast.error('Error adding assignment or updating isPermanent.');
+      }
+    } else {
+      console.error('Please fill out all required fields');
+      toast.error('Please fill out all required fields.');
     }
   };
 
   return (
-    <div className='st-container'>
-      <ToastContainer />
-      <div className="uppermain">
-        <div className="st-left-uppermain">
-          <span className='t-students'> Total Students: </span>  
-          <span className='t-p-students'> Total Present:</span>
-        </div>
-        <div className="right-uppermain">
-          <button className="Btn-add" onClick={handleAdd}>Add Permanent List<IoIosAddCircleOutline className='add-icon' /></button>
-        </div>
-      </div>
+    <div>
+      <ToastContainer position='top-center' />
+      <form className="permanent-cleaner-form" onSubmit={handleSubmit}>
+        <h2 className="form-title">Add Permanent Cleaner</h2>
 
-      <div className="data-div">
-        <div className="table-data">
-          <center>
-            <table>
-              <thead>
-                <tr>
-                  <th className='pl-t-main-no'>No</th>
-                  <th className='t-main-place'>Cleaning Category</th>
-                  <th className='t-main-place'>Cleaning Area</th>
-                  <th className="t-main-place">Cleaner</th>
-                  <th className="t-main-special">Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((item, index) => (
-                  <tr key={item.id}>
-                    <td className='pl-t-no'>{index + 1}</td>
-                    <td className='t-place'>{item.cleaningCategory}</td>
-                    <td className='t-place'>{item.cleaningArea}</td>
-                    <td className="t-place">{item.students}</td>
-                    <td className="t-special">
-                      <button 
-                        onClick={() => handleDelete(item.id, item.studentLevel, item.student, item.cleaningCategory, item.cleaningArea)} 
-                        className={`delete ${deletingId === item.id ? 'deleting' : ''}`}>
-                        {deletingId === item.id ? 'Deleting...' : 'Delete'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </center>
-        </div>
-        <div className='st-t-btns'>
-          <button className="save-btn btn">Save</button>
-        </div>
-      </div>
+        <h3 className="section-title">Area</h3>
+        <select className="cleaning-category" onChange={handleCleaningCategoryChange} value={selectedCleaningCategory}>
+          <option value="">Select cleaning category</option>
+          {cleaningCategories.map((category) => (
+            <option key={category.id} value={category.id}>{category.id}</option>
+          ))}
+        </select>
+
+        <select className="cleaning-place" onChange={(e) => setSelectedCleaningArea(e.target.value)} value={selectedCleaningArea}>
+          <option value="">Select cleaning area</option>
+          {cleaningAreas.map((area, index) => (
+            <option key={index} value={area.place}>{area.place}</option>
+          ))}
+        </select>
+
+        <h3 className="section-title">Cleaner</h3>
+        <select className="class-of-cleaner" onChange={handleStudentLevelChange} value={selectedStudentLevel}>
+          <option value="">Select Level</option>
+          {studentLevels.map((level) => (
+            <option key={level.id} value={level.id}>{level.id}</option>
+          ))}
+        </select>
+
+        <select className="student" onChange={(e) => handleStudentChange(0, e)} value={selectedStudents[0]}>
+          <option value="">Select student 1</option>
+          {students.map((student, index) => (
+            <option key={index} value={student.name}>{student.name}</option>
+          ))}
+        </select>
+
+        <select className="student" onChange={(e) => handleStudentChange(1, e)} value={selectedStudents[1]}>
+          <option value="">Select student 2 (optional)</option>
+          {students.map((student, index) => (
+            <option key={index} value={student.name}>{student.name}</option>
+          ))}
+        </select>
+
+        <button type="submit" className="submit-btn">Submit</button>
+      </form>
     </div>
   );
 }
 
-export default PermanentList;
+export default PermanentForm;
