@@ -16,7 +16,7 @@ function PermanentForm() {
   const [students, setStudents] = useState([]);
   const [selectedStudentLevel, setSelectedStudentLevel] = useState('');
 
-  const [selectedStudent, setSelectedStudent] = useState('');
+  const [selectedStudents, setSelectedStudents] = useState(['', '']);
   const [selectedCleaningArea, setSelectedCleaningArea] = useState('');
 
   useEffect(() => {
@@ -66,31 +66,36 @@ function PermanentForm() {
     }
   };
 
+  const handleStudentChange = (index, event) => {
+    const newSelectedStudents = [...selectedStudents];
+    newSelectedStudents[index] = event.target.value;
+    setSelectedStudents(newSelectedStudents);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (selectedCleaningCategory && selectedCleaningArea && selectedStudentLevel && selectedStudent) {
+    if (selectedCleaningCategory && selectedCleaningArea && selectedStudentLevel && selectedStudents[0]) {
+      const studentsToAssign = selectedStudents.filter(student => student);
       const assignment = {
         cleaningCategory: selectedCleaningCategory,
         cleaningArea: selectedCleaningArea,
         studentLevel: selectedStudentLevel,
-        student: selectedStudent
+        students: studentsToAssign
       };
 
       try {
         // Add assignment to permanentList collection
         const docRef = await addDoc(collection(db, 'permanentList'), assignment);
-       toast.success('Successfully Added to Permanent List', { autoClose: 3000 });
- 
-       console.log(docRef)
-        // Update isPermanent to true for selected student in students collection
+        toast.success('Successfully Added to Permanent List', { autoClose: 3000 });
+
+        // Update isPermanent to true for selected students in students collection
         const studentDocRef = doc(db, 'students', selectedStudentLevel);
         const studentDocSnap = await getDoc(studentDocRef);
-
         if (studentDocSnap.exists()) {
           const studentData = studentDocSnap.data().students;
           const updatedStudents = studentData.map(student => {
-            if (student.name === selectedStudent) {
+            if (studentsToAssign.includes(student.name)) {
               return { ...student, isPermanent: true };
             }
             return student;
@@ -107,37 +112,36 @@ function PermanentForm() {
           const cleaningPlaceData = cleaningPlaceDocSnap.data().cleaningPlace;
           const updatedCleaningPlaces = cleaningPlaceData.map(place => {
             if (place.place === selectedCleaningArea) {
-              return { ...place, isPermanet: true };
+              return { ...place, isPermanent: true };
             }
             return place;
           });
 
           await updateDoc(cleaningPlaceDocRef, { cleaningPlace: updatedCleaningPlaces });
-        
         }
 
         // Optionally, you can reset the form fields here
         setSelectedCleaningCategory('');
         setSelectedCleaningArea('');
         setSelectedStudentLevel('');
-        setSelectedStudent('');
+        setSelectedStudents(['', '']);
 
       } catch (error) {
         console.error('Error adding assignment or updating isPermanent: ', error);
         toast.error('Error adding assignment or updating isPermanent.');
       }
     } else {
-      console.error('Please fill out all fields');
-      toast.error('Please fill out all fields.');
+      console.error('Please fill out all required fields');
+      toast.error('Please fill out all required fields.');
     }
   };
 
   return (
     <div>
-      <ToastContainer position='top-center'/>
+      <ToastContainer position='top-center' />
       <form className="permanent-cleaner-form" onSubmit={handleSubmit}>
         <h2 className="form-title">Add Permanent Cleaner</h2>
-        
+
         <h3 className="section-title">Area</h3>
         <select className="cleaning-category" onChange={handleCleaningCategoryChange} value={selectedCleaningCategory}>
           <option value="">Select cleaning category</option>
@@ -145,14 +149,14 @@ function PermanentForm() {
             <option key={category.id} value={category.id}>{category.id}</option>
           ))}
         </select>
-        
+
         <select className="cleaning-place" onChange={(e) => setSelectedCleaningArea(e.target.value)} value={selectedCleaningArea}>
           <option value="">Select cleaning area</option>
           {cleaningAreas.map((area, index) => (
             <option key={index} value={area.place}>{area.place}</option>
           ))}
         </select>
-        
+
         <h3 className="section-title">Cleaner</h3>
         <select className="class-of-cleaner" onChange={handleStudentLevelChange} value={selectedStudentLevel}>
           <option value="">Select Level</option>
@@ -160,14 +164,21 @@ function PermanentForm() {
             <option key={level.id} value={level.id}>{level.id}</option>
           ))}
         </select>
-        
-        <select className="student" onChange={(e) => setSelectedStudent(e.target.value)} value={selectedStudent}>
-          <option value="">Select student</option>
+
+        <select className="student" onChange={(e) => handleStudentChange(0, e)} value={selectedStudents[0]}>
+          <option value="">Select student 1</option>
           {students.map((student, index) => (
             <option key={index} value={student.name}>{student.name}</option>
           ))}
         </select>
-        
+
+        <select className="student" onChange={(e) => handleStudentChange(1, e)} value={selectedStudents[1]}>
+          <option value="">Select student 2 (optional)</option>
+          {students.map((student, index) => (
+            <option key={index} value={student.name}>{student.name}</option>
+          ))}
+        </select>
+
         <button type="submit" className="submit-btn">Submit</button>
       </form>
     </div>
