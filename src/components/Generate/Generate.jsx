@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteField } from "firebase/firestore";
 import { app } from "../../firebase/config";
 import './style.css';
+import { useNavigate } from "react-router-dom";
 
 const db = getFirestore(app);
 
@@ -90,6 +91,7 @@ const Generate = () => {
       setGenerateClicked(prevState => ({ ...prevState, [place]: true }));
     }
     setLoadingButton(null);
+  
   };
 
   const handleLevelChange = (place, level) => {
@@ -171,11 +173,12 @@ const Generate = () => {
       });
 
       console.log("Local storage cleared successfully");
+      navigate('/list')
     } catch (error) {
       console.error("Error submitting data:", error);
     }
   };
-
+  const navigate = useNavigate()
   return (
     <div className="form">
       <h2 className="newlist" >Generate New List</h2>

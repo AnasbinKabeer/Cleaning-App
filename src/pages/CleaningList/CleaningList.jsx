@@ -99,8 +99,10 @@
       <div className='cl-container'>
         <div className="uppermain">
           <div className="left-uppermain">
-            <h2 className='hbc'>Date: 22/05/2024</h2>
-            <h2 className='hbc'>Sunday</h2>
+          <div className="st-left-uppermain">
+          <span className='t-'>Date: 27/06/2024</span>  
+          <span className='t-p-students'>Wednesday</span>
+        </div>
             </div>
           <div className="right-uppermain">
             <button className="Btn-add" onClick={handleGenerate}>Generate New<IoIosAddCircleOutline className='add-icon' /></button>
@@ -165,10 +167,10 @@
           </div>
 
           <div className='t-btns'>
-          <button className="submit-btn btn">Submit {selectedLocation} List</button>
+          <button className="Csubmit-btn btn">Submit</button>
             <ReactToPrint
               trigger={() => (
-                <button className="print-btn btn">Print</button>
+                <button className="Cprint-btn btn">Print</button>
               )}
               content={() => tableRef.current}
             />

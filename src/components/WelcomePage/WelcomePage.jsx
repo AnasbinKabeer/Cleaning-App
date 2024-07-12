@@ -24,6 +24,23 @@ function WelcomePage() {
   return (
     <div className="welcomePage">
       <div className='left-div'>
+        <div className="wl-header">Cleaning Dashboard</div>
+        <div className="collapsible-container">
+          <div className="header" onClick={toggleExpand}>
+            <h5 className='lt-s'>Excluded list</h5>
+           
+          </div>
+          
+            <div className="content">
+              <span>Muhammed</span>
+              <span>2. Class Room</span>
+              <span>3. Class Room</span>
+            </div>
+
+        </div>
+<div>
+</div>
+     
       </div>
       <div className='right-div'>
         <div className="canvas-container">

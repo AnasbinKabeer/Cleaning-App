@@ -17,7 +17,7 @@ const Login = () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       // If login is successful, navigate to the dashboard or protected route
-      navigate('/');
+      navigate('/list');
     } catch (error) {
       setError(error.message);
     }

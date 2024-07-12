@@ -159,15 +159,20 @@ tr {
   cursor: pointer;
   border-radius: 4px;
   margin-right: 10px;
-  color: #fff
+  color: #fff;
+
 }
 
 
-.submit{
-  background: #0012dc;
+.Csubmit-btn{
+  background: #006edc;
+}
+.Csubmit-btn:hover{
+  background: #3E99CE;
 }
 
-.print-btn {
+
+.Cprint-btn {
   background: #dc0000;
   /* position: absolute;
   bottom: 60px;
@@ -175,7 +180,7 @@ tr {
 }
 
 
-.print-btn:hover {
+.Cprint-btn:hover {
   background: #b70000;
   /* position: absolute;
   bottom: 60px;
