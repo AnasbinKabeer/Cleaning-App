@@ -153,30 +153,18 @@ tr {
 }
 
 .btn {
-  padding: 10px 40px;
+  padding: 12px 30px;
   border: none;
   outline: none;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 4px;
   margin-right: 10px;
-  color: #fff;
+  color: #fff
 }
 
 
-
-.prin-btn {
-  background-color: #4CAF50;
-  /* Green */
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 0px 2px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.submit{
+  background: #0012dc;
 }
 
 .print-btn {
@@ -185,6 +173,15 @@ tr {
   bottom: 60px;
   right:100px; */
 }
+
+
+.print-btn:hover {
+  background: #b70000;
+  /* position: absolute;
+  bottom: 60px;
+  right:100px; */
+}
+
 
 .submit-btn {
   background: #006edc;
@@ -210,7 +207,10 @@ padding: 5px 26px;
 
 .colun{
   display: none;
+
+
 }
+
 
 
 @media only screen and (min-width: 768px) and (max-width: 1024px)   {
