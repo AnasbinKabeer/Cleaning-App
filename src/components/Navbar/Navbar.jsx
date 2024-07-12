@@ -8,7 +8,11 @@ import { useState } from 'react';
 import { RiFindReplaceFill } from "react-icons/ri";
 import { BiLogOut } from "react-icons/bi";
 
+import { auth } from '../../firebase/config'; // Assuming this import is correct
+
+
 const Navbar = () => {
+
   const location = useLocation();
   const [active, setActive] = useState(location.pathname);
 
@@ -51,7 +55,7 @@ const Navbar = () => {
           </div>
         </Link>
         <div className='po'>
-        <div className="logout"> Logout <BiLogOut className='hd' /></div>
+        <div className="logout"  onClick={() => auth.signOut()}> Logout <BiLogOut className='hd' /></div>
         </div>
     
       </div>

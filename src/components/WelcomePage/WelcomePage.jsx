@@ -1,8 +1,11 @@
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import './style.css'
 import { useState } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../firebase/config';
 
 function WelcomePage() {
+  const [user] = useAuthState(auth);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpand = () => {
