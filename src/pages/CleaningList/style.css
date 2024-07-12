@@ -218,7 +218,7 @@ padding: 5px 26px;
 
 
 
-@media only screen and (min-width: 768px) and (max-width: 1024px)   {
+@media only screen and (min-width: 768px) and (max-width: 1200px)   {
   body {
     font-family: 'Poppins', sans-serif;
     font-size: 12px;
