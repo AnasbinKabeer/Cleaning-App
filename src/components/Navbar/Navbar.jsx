@@ -19,7 +19,7 @@ const Navbar = () => {
 
   return (
     <div className="nav-bar">
-      <div className="logo-bar">SOCIAL CLIQUE</div>
+      <div className="logo-bar">Social Clique </div>
       <div className="links-bar">
         <Link to="/" onClick={() => handleClick('/')}>
           <div className={active === '/' ? 'link active' : 'link'}>

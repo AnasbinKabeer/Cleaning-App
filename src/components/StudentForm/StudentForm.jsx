@@ -31,9 +31,11 @@ const StudentForm = () => {
   };
 
   return (
+    
     <form className="form-container" onSubmit={handleSubmit}>
+       <h2> Add Student</h2>
     <div className="form-group">
-      <h2>Add Student</h2>
+     
       <label className="form-label">Student Name:</label>
       <input 
         type="text" 

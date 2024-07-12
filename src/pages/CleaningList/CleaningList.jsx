@@ -98,7 +98,10 @@ function CleaningList() {
   return (
     <div className='cl-container'>
       <div className="uppermain">
-        <div className="left-uppermain"><h2>Total:</h2></div>
+        <div className="left-uppermain">
+          <h2 className='hbc'>Date: 22/05/2024</h2>
+          <h2 className='hbc'>Sunday</h2>
+          </div>
         <div className="right-uppermain">
           <button className="Btn-add" onClick={handleGenerate}>Generate New<IoIosAddCircleOutline className='add-icon' /></button>
         </div>
@@ -124,7 +127,7 @@ function CleaningList() {
                 <tr>
                   <th className='cl-t-main-no'>No</th>
                   <th className='t-main-place'>Cleaning Place</th>
-                  <th className='t-main-name'>Name</th>
+                  <th className='t-main-place'>Name</th>
                   <th className='t-main-edit'>Status</th>
                 </tr>
               </thead>
@@ -138,7 +141,7 @@ function CleaningList() {
                       <td className='colun'>:</td>
                       <td className='cl-t-name'>{item.studentNames}</td>
                       <td className='cl-t-edit'>
-                        <input type="checkbox" defaultChecked={item.status} />
+                        <input className='tickbox' type="checkbox" defaultChecked={item.status} />
                       </td>
                     </tr>
                   );

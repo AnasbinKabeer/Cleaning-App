@@ -10,6 +10,13 @@
 
 }
 
+
+.hbc{
+  color: #000;
+  font-size: 16px;
+  
+}
+
 .uppermain {
   margin-top: 50px;
   width: 90%;
@@ -23,6 +30,8 @@
   justify-content: space-between;
   box-sizing: border-box;
 }
+
+
 
 .data-div {
   margin-top: 30px;
@@ -153,6 +162,23 @@ tr {
   color: #fff;
 }
 
+
+
+.prin-btn {
+  background-color: #4CAF50;
+  /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0px 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
 .print-btn {
   background: #dc0000;
   /* position: absolute;
@@ -180,6 +206,7 @@ padding: 5px 26px;
   font-size: 24px;
 
 }
+
 
 .colun{
   display: none;
@@ -255,6 +282,7 @@ padding: 5px 26px;
     flex: 1;
     text-align: left;
   }
+
 
   .right-uppermain {
     flex: 1;
