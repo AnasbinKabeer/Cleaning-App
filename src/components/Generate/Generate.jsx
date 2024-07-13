@@ -61,7 +61,7 @@ const Generate = () => {
     setLoadingButton(place);
     const level = selectedLevels[place];
     if (!level) {
-      toast.error(`No level selected for ${place}`,{ autoClose: 2500 });
+      toast.error(`No level selected for ${place}`, { autoClose: 2500 });
       setLoadingButton(null);
       return;
     }
@@ -111,7 +111,7 @@ const Generate = () => {
   const handleCheck = async () => {
     setChecking(true);
     let remainingStudents = [];
-    
+
     // Fetch students from level4 and level5
     for (const level of ["level4", "level5"]) {
       const studentsData = await fetchCollectionData("students", level);
@@ -119,7 +119,7 @@ const Generate = () => {
         remainingStudents = remainingStudents.concat(studentsData.students.filter(student => student.isPresent && !student.isPermanent));
       }
     }
-    
+
     // Get all students that are already assigned in local storage lists
     let assignedStudents = [];
     cleaningPlaces.forEach(place => {
@@ -132,21 +132,17 @@ const Generate = () => {
         });
       }
     });
-    
+
     // Filter out assigned students from remainingStudents
     remainingStudents = remainingStudents.filter(remainingStudent => {
       return !assignedStudents.some(assignedStudent => assignedStudent.name === remainingStudent.name);
     });
-    
+
     // Shuffle the remaining students
     remainingStudents = shuffleArray(remainingStudents);
-<<<<<<< HEAD
     console.log(remainingStudents);
-    
+
     // Assign remaining students to empty places
-=======
-   console.log(remainingStudents);
->>>>>>> 6ec6a71d16e4048b48ec2a6210cce0a680f1ccab
     const allUpdatedPlaces = cleaningPlaces.map(place => {
       const placeList = JSON.parse(localStorage.getItem(`${place}List`));
       let studentIndex = 0;
@@ -163,12 +159,12 @@ const Generate = () => {
       localStorage.setItem(`${place}List`, JSON.stringify(placeList));
       return { place, placeList };
     });
-    
+
     console.log("All updated data:", allUpdatedPlaces);
     setSubmitEnabled(true);
     setChecking(false);
   };
-  
+
   const handleSubmit = async () => {
     setSubmitLoading(true);
     const generatedData = {};
@@ -215,9 +211,10 @@ const Generate = () => {
   };
 
   const navigate = useNavigate();
+  
   return (
     <div className="form">
-      <ToastContainer position="top-center" />
+      <ToastContainer position='top-center' />
       <h2 className="newlist">Generate New List</h2>
       {cleaningPlaces.map((place, index) => (
         <div key={index} className="form-group">
@@ -276,7 +273,6 @@ const Generate = () => {
       </button>
     </div>
   );
-  
-}
+};
 
 export default Generate;
