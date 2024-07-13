@@ -27,6 +27,7 @@ const Generate = () => {
   const [checkEnabled, setCheckEnabled] = useState(false);
   const [submitEnabled, setSubmitEnabled] = useState(false);
   const [loadingButton, setLoadingButton] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   useEffect(() => {
     const allGenerated = Object.values(generateClicked).every(val => val);
@@ -91,7 +92,6 @@ const Generate = () => {
       setGenerateClicked(prevState => ({ ...prevState, [place]: true }));
     }
     setLoadingButton(null);
-  
   };
 
   const handleLevelChange = (place, level) => {
@@ -138,6 +138,7 @@ const Generate = () => {
   };
 
   const handleSubmit = async () => {
+    setSubmitLoading(true);
     const generatedData = {};
     const cleaningPlaces = ['Masjid', 'MNC Ground Floor', 'MNC First Floor', 'MNC Second Floor', 'MNC Outside'];
 
@@ -176,9 +177,13 @@ const Generate = () => {
       navigate('/cleaning')
     } catch (error) {
       console.error("Error submitting data:", error);
+    } finally {
+      setSubmitLoading(false);
     }
   };
-  const navigate = useNavigate()
+
+  const navigate = useNavigate();
+  
   return (
     <div className="form">
       <h2 className="newlist" >Generate New List</h2>
@@ -202,7 +207,7 @@ const Generate = () => {
             className={`button ${loadingButton === place ? "rotating" : ""}`}
           >
             {loadingButton === place ? (
-              <div className="spinner">Generating..</div>
+              <div className="spinner"></div>
             ) : (
               `GenerateList`
             )}
@@ -218,10 +223,17 @@ const Generate = () => {
       </button>
       <button 
         onClick={handleSubmit} 
-        disabled={!submitEnabled}
-        className="button bgbtn"
+        disabled={!submitEnabled || submitLoading}
+        className={`button bgbtn ${submitLoading ? "loading" : ""}`}
       >
-        Submit
+        {submitLoading ? (
+          <>
+            <div className="spinner"></div>
+            Submitting...
+          </>
+        ) : (
+          "Submit"
+        )}
       </button>
     </div>
   );

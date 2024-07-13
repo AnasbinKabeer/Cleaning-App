@@ -100,8 +100,8 @@
         <div className="uppermain">
           <div className="left-uppermain">
           <div className="st-left-uppermain">
-          <span className='t-'>Date: 27/06/2024</span>  
-          <span className='t-p-students'>Wednesday</span>
+          <span className='t-'>Date: 14/07/2024</span>  
+          <span className='t-p-students'>Sunday</span>
         </div>
             </div>
           <div className="right-uppermain">
