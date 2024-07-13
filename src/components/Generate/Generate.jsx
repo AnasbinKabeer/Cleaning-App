@@ -140,9 +140,13 @@ const Generate = () => {
     
     // Shuffle the remaining students
     remainingStudents = shuffleArray(remainingStudents);
+<<<<<<< HEAD
     console.log(remainingStudents);
     
     // Assign remaining students to empty places
+=======
+   console.log(remainingStudents);
+>>>>>>> 6ec6a71d16e4048b48ec2a6210cce0a680f1ccab
     const allUpdatedPlaces = cleaningPlaces.map(place => {
       const placeList = JSON.parse(localStorage.getItem(`${place}List`));
       let studentIndex = 0;
