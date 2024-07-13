@@ -3,6 +3,8 @@ import { getFirestore, doc, getDoc, setDoc, collection, getDocs, updateDoc, dele
 import { app } from "../../firebase/config";
 import './style.css';
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const db = getFirestore(app);
 
@@ -58,7 +60,7 @@ const Generate = () => {
     setLoadingButton(place);
     const level = selectedLevels[place];
     if (!level) {
-      console.log(`No level selected for ${place}`);
+      toast.error(`No level selected for ${place}`,{ autoClose: 2500 });
       setLoadingButton(null);
       return;
     }
@@ -185,7 +187,9 @@ const Generate = () => {
   const navigate = useNavigate();
   
   return (
+
     <div className="form">
+            <ToastContainer position='top-center' />
       <h2 className="newlist" >Generate New List</h2>
       {cleaningPlaces.map((place, index) => (
         <div key={index} className="form-group">
