@@ -173,7 +173,7 @@ const Generate = () => {
       });
 
       console.log("Local storage cleared successfully");
-      navigate('/list')
+      navigate('/cleaning')
     } catch (error) {
       console.error("Error submitting data:", error);
     }
@@ -202,7 +202,7 @@ const Generate = () => {
             className={`button ${loadingButton === place ? "rotating" : ""}`}
           >
             {loadingButton === place ? (
-              <div className="spinner"></div>
+              <div className="spinner">Generating..</div>
             ) : (
               `GenerateList`
             )}
