@@ -117,7 +117,7 @@ const Generate = () => {
     }
 
     remainingStudents = shuffleArray(remainingStudents);
-
+   console.log(remainingStudents);
     const allUpdatedPlaces = cleaningPlaces.map(place => {
       const placeList = JSON.parse(localStorage.getItem(`${place}List`));
       let studentIndex = 0;
