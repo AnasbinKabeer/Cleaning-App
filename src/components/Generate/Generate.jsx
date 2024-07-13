@@ -30,6 +30,7 @@ const Generate = () => {
   const [submitEnabled, setSubmitEnabled] = useState(false);
   const [loadingButton, setLoadingButton] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     const allGenerated = Object.values(generateClicked).every(val => val);
@@ -108,16 +109,40 @@ const Generate = () => {
   };
 
   const handleCheck = async () => {
+    setChecking(true);
     let remainingStudents = [];
+    
+    // Fetch students from level4 and level5
     for (const level of ["level4", "level5"]) {
       const studentsData = await fetchCollectionData("students", level);
       if (studentsData) {
         remainingStudents = remainingStudents.concat(studentsData.students.filter(student => student.isPresent && !student.isPermanent));
       }
     }
-
+    
+    // Get all students that are already assigned in local storage lists
+    let assignedStudents = [];
+    cleaningPlaces.forEach(place => {
+      const placeList = JSON.parse(localStorage.getItem(`${place}List`));
+      if (placeList) {
+        placeList.forEach(p => {
+          if (p.assignedStudents && p.assignedStudents.length > 0) {
+            assignedStudents = assignedStudents.concat(p.assignedStudents);
+          }
+        });
+      }
+    });
+    
+    // Filter out assigned students from remainingStudents
+    remainingStudents = remainingStudents.filter(remainingStudent => {
+      return !assignedStudents.some(assignedStudent => assignedStudent.name === remainingStudent.name);
+    });
+    
+    // Shuffle the remaining students
     remainingStudents = shuffleArray(remainingStudents);
-
+    console.log(remainingStudents);
+    
+    // Assign remaining students to empty places
     const allUpdatedPlaces = cleaningPlaces.map(place => {
       const placeList = JSON.parse(localStorage.getItem(`${place}List`));
       let studentIndex = 0;
@@ -134,11 +159,12 @@ const Generate = () => {
       localStorage.setItem(`${place}List`, JSON.stringify(placeList));
       return { place, placeList };
     });
-
+    
     console.log("All updated data:", allUpdatedPlaces);
     setSubmitEnabled(true);
+    setChecking(false);
   };
-
+  
   const handleSubmit = async () => {
     setSubmitLoading(true);
     const generatedData = {};
@@ -185,12 +211,10 @@ const Generate = () => {
   };
 
   const navigate = useNavigate();
-  
   return (
-
     <div className="form">
-            <ToastContainer position='top-center' />
-      <h2 className="newlist" >Generate New List</h2>
+      <ToastContainer position="top-center" />
+      <h2 className="newlist">Generate New List</h2>
       {cleaningPlaces.map((place, index) => (
         <div key={index} className="form-group">
           <label htmlFor={place} className="label">{place}:</label>
@@ -220,10 +244,17 @@ const Generate = () => {
       ))}
       <button 
         onClick={handleCheck} 
-        disabled={!checkEnabled}
-        className="button bgbtn"
+        disabled={!checkEnabled || checking}
+        className={`button bgbtn ${checking ? "loading" : ""}`}
       >
-        Check
+        {checking ? (
+          <>
+            <div className="spinner"></div>
+            Checking...
+          </>
+        ) : (
+          "Check"
+        )}
       </button>
       <button 
         onClick={handleSubmit} 
@@ -241,6 +272,7 @@ const Generate = () => {
       </button>
     </div>
   );
+  
 }
 
 export default Generate;
