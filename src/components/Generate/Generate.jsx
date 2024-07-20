@@ -71,17 +71,31 @@ const Generate = () => {
 
     if (studentsData && cleaningPlacesData) {
       let students = studentsData.students.filter(student => student.isPresent && !student.isPermanent);
-      students = shuffleArray(students).slice(2);
+      students = shuffleArray(students);
+
+      let level4general = [];
+      let tobeassignedsudentsoflevel4 = [];
+      
+      if (level === "level4" || level === "level5") {
+        level4general = students.slice(0, 25);
+        tobeassignedsudentsoflevel4 = students.slice(25);
+        localStorage.setItem('tobeassignedsudentsoflevel4', JSON.stringify(tobeassignedsudentsoflevel4));
+        console.log('level4g',level4general)
+        console.log('level4Next',tobeassignedsudentsoflevel4)
+      } else {
+        level4general = students.slice(2);
+      }
+      
 
       let assignedPlaces = [];
       let studentIndex = 0;
 
       cleaningPlacesData.cleaningPlace
-        .filter(place => !place.isPermanent)
+        .filter(place => !place.isPermanet)
         .forEach(place => {
           let assignedStudents = [];
-          for (let i = 0; i < place.quot && studentIndex < students.length; i++) {
-            assignedStudents.push(students[studentIndex]);
+          for (let i = 0; i < place.quot && studentIndex < level4general.length; i++) {
+            assignedStudents.push(level4general[studentIndex]);
             studentIndex++;
           }
           assignedPlaces.push({
@@ -110,17 +124,8 @@ const Generate = () => {
 
   const handleCheck = async () => {
     setChecking(true);
-    let remainingStudents = [];
+    let tobeassignedsudentsoflevel4 = JSON.parse(localStorage.getItem('tobeassignedsudentsoflevel4')) || [];
 
-    // Fetch students from level4 and level5
-    for (const level of ["level4", "level5"]) {
-      const studentsData = await fetchCollectionData("students", level);
-      if (studentsData) {
-        remainingStudents = remainingStudents.concat(studentsData.students.filter(student => student.isPresent && !student.isPermanent));
-      }
-    }
-
-    // Get all students that are already assigned in local storage lists
     let assignedStudents = [];
     cleaningPlaces.forEach(place => {
       const placeList = JSON.parse(localStorage.getItem(`${place}List`));
@@ -133,24 +138,21 @@ const Generate = () => {
       }
     });
 
-    // Filter out assigned students from remainingStudents
-    remainingStudents = remainingStudents.filter(remainingStudent => {
+    tobeassignedsudentsoflevel4 = tobeassignedsudentsoflevel4.filter(remainingStudent => {
       return !assignedStudents.some(assignedStudent => assignedStudent.name === remainingStudent.name);
     });
 
-    // Shuffle the remaining students
-    remainingStudents = shuffleArray(remainingStudents);
-    console.log(remainingStudents);
+    tobeassignedsudentsoflevel4 = shuffleArray(tobeassignedsudentsoflevel4);
+    console.log(tobeassignedsudentsoflevel4);
 
-    // Assign remaining students to empty places
     const allUpdatedPlaces = cleaningPlaces.map(place => {
       const placeList = JSON.parse(localStorage.getItem(`${place}List`));
       let studentIndex = 0;
       placeList.forEach(p => {
         if (p.assignedStudents.length === 0) {
           let assignedStudents = [];
-          for (let i = 0; i < p.quot && studentIndex < remainingStudents.length; i++) {
-            assignedStudents.push(remainingStudents[studentIndex]);
+          for (let i = 0; i < p.quot && studentIndex < tobeassignedsudentsoflevel4.length; i++) {
+            assignedStudents.push(tobeassignedsudentsoflevel4[studentIndex]);
             studentIndex++;
           }
           p.assignedStudents = assignedStudents;
@@ -254,7 +256,7 @@ const Generate = () => {
             Checking...
           </>
         ) : (
-          "Check"
+          `Check`
         )}
       </button>
       <button 
@@ -268,7 +270,7 @@ const Generate = () => {
             Submitting...
           </>
         ) : (
-          "Submit"
+          `Submit`
         )}
       </button>
     </div>

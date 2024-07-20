@@ -1,19 +1,29 @@
 .nav-bar {
     height: 100vh;
-    width: 550px;
+    min-width: 350px;
     background-color: rgb(255, 255, 255);
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     align-items: center;
     flex-wrap: nowrap;
     position: relative;
+    padding: 80px 0;
+    box-sizing: border-box;
+}
+
+.up{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 50px;
 }
 
 .logo-bar {
     color: #001F3F;
-    height: 100px;
+
+        /* height: 100px; */
     text-align: justify;
-    padding-top: 80px;
     font-size: 45px;
     font-family: 'Poppins';
     font-weight: 600;
@@ -23,7 +33,7 @@
 }
 
 .links-bar {
-    margin-top: 60px;
+    /* margin-top: 60px; */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -88,11 +98,11 @@ span {
 
 
 .po{
-    position: relative;
+
 }
 .logout{
-    
- margin-top: 90px;
+/*     
+ margin-top: 90px; */
     float: inline-end;
     color: #001F3F;
     font-weight: 500;
@@ -111,13 +121,17 @@ span {
     transition: ease-in-out 200ms;
 }
 
-@media only screen and (min-width: 768px) and (max-width: 1024px){
+@media only screen and (min-width: 400px) and (max-width: 1024px){
     .nav-bar{
-        width: 450px;
+        transition:ease-in-out 600ms;
+        min-width: 260px;
     }
 
     .link{
-        width: 230px;
+        width: 220px;
         padding-left:44px;
+        transition:ease-in-out 600ms;
     }
 }
+
+

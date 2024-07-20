@@ -6,6 +6,9 @@ import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { app } from '../../firebase/config';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+
 
 const db = getFirestore(app);
 
@@ -16,11 +19,13 @@ function StList() {
   };
 
   const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [level, setLevel] = useState('Level 1');
   const [hasChanges, setHasChanges] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [totalStudents, setTotalStudents] = useState(0);
   const [totalPresent, setTotalPresent] = useState(0);
+  // const [searchQuery, setSearchQuery] = useState('');
 
   const levels = useMemo(() => ['level1', 'level2', 'level3', 'level4', 'level5'], []);
 
@@ -29,16 +34,20 @@ function StList() {
       const docRef = doc(db, 'students', levelId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setStudents(docSnap.data().students || []);
+        const studentsData = docSnap.data().students || [];
+        setStudents(studentsData);
+        setFilteredStudents(studentsData);
         setHasChanges(false);
       } else {
         console.log('No such document!');
         setStudents([]);
+        setFilteredStudents([]);
         setHasChanges(false);
       }
     } catch (error) {
       console.error('Error fetching document: ', error);
       setStudents([]);
+      setFilteredStudents([]);
       setHasChanges(false);
     }
   };
@@ -83,59 +92,94 @@ function StList() {
       setHasChanges(false);
       setIsLoading(false);
       fetchAllData(); // Refresh total counts after saving
-      toast.success('Changes saved successfully!', { autoClose: 3000 });
+      toast.success('Changes saved successfully!', { autoClose: 1000 });
     } catch (error) {
       console.error('Error updating document: ', error);
       setIsLoading(false);
-      toast.error('Error saving changes.', { autoClose: 3000 });
+      toast.error('Error saving changes.', { autoClose: 1000 });
     }
   };
 
+  // const handleSearchChange = (event) => {
+  //   const query = event.target.value.toLowerCase();
+  //   setSearchQuery(query);
+  //   setFilteredStudents(students.filter(student => student.name.toLowerCase().includes(query)));
+  // };
+
+
+  const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
+
   return (
     <div className='st-container'>
-      <ToastContainer position='top-center'/>
+      <ToastContainer position='top-center' />
       <div className="uppermain">
         <div className="st-left-uppermain">
-          <span className='t-students'> Total Students: {totalStudents}</span>  
+          <span className='t-students'> Total Students: {totalStudents}</span>
           <span className='t-p-students'> Total Present: {totalPresent}</span>
         </div>
         <div className="right-uppermain">
-          <button className="Btn-add" onClick={handleAddStudent}>Add Student<IoIosAddCircleOutline className='add-icon' /></button>
+          <Button variant="contained" color="success" onClick={handleAddStudent} sx={{ borderRadius: '10px' }} size="large">
+            Add Student <IoIosAddCircleOutline className='add-icon' />
+          </Button>
         </div>
       </div>
 
       <div className="data-div">
+
         <div className="table-link">
-          <div className={level === 'Level 1' ? 't-link active' : "t-link"} onClick={() => { fetchData('level1'); setLevel('Level 1'); }}>Level 01</div>
-          <div className={level === 'Level 2' ? 't-link active' : "t-link"} onClick={() => { fetchData('level2'); setLevel('Level 2'); }}>Level 02</div>
-          <div className={level === 'Level 3' ? 't-link active' : "t-link"} onClick={() => { fetchData('level3'); setLevel('Level 3'); }}>Level 03</div>
-          <div className={level === 'Level 4' ? 't-link active' : "t-link"} onClick={() => { fetchData('level4'); setLevel('Level 4'); }}>Level 04</div>
-          <div className={level === 'Level 5' ? 't-link active' : "t-link"} onClick={() => { fetchData('level5'); setLevel('Level 5'); }}>Level 05</div>
+          {levels.map((levelId, idx) => (
+            <div
+              key={levelId}
+              className={level === `Level ${idx + 1}` ? 't-link active' : 't-link'}
+              onClick={() => { fetchData(levelId); setLevel(`Level ${idx + 1}`); }}
+            >
+              Level {idx + 1}
+            </div>
+
+          ))}
+
+          {/* <div className='serh'>
+
+            <input className='serchin' type="search" value={searchQuery}
+              onChange={handleSearchChange} />
+
+
+          </div> */}
         </div>
+
         <div className="table-data">
+
           <center>
             <table>
+
               <thead>
+
                 <tr>
                   <th className='cl-t-main-no'>No</th>
+
                   <th className='t-main-place'>Name</th>
                   <th className='t-main-name'>Status</th>
+
                   <th className="t-main-edit">Edit</th>
-                  {/* <th>Total: {students.length}</th> */}
+
+
+
                 </tr>
               </thead>
               <tbody>
-                {students.map((student, index) => (
+                {filteredStudents.map((student, index) => (
                   <tr key={index}>
                     <td className='cl-t-no'>{index + 1}</td>
                     <td className='t-place'>{student.name}</td>
-                    <td className={student.isPresent ? 't-status' : 't-status absent'}>{student.isPresent ? "Present" : "Absent"}</td>
+                    <td className={student.isPresent ? 't-status' : 't-status absent'}>
+                      {student.isPresent ? "Present" : "Absent"}
+                    </td>
                     <td className="t-edit">
-                      <input
-                        type="checkbox"
-                        checked={student.isPresent}
-                        onChange={() => handleCheckboxChange(index)}
-                      />
+
+
+                      <Checkbox {...label} size="small" checked={student.isPresent}
+                        onChange={() => handleCheckboxChange(index)} />
+
                     </td>
                   </tr>
                 ))}
@@ -143,15 +187,15 @@ function StList() {
             </table>
           </center>
         </div>
-        <div className='st-t-btns'>
-          <button
-            className={`save-btn btn ${isLoading ? 'loading' : ''}`}
-            onClick={handleSaveClick}
-            disabled={!hasChanges || isLoading}
-          >
-            {isLoading ? 'Saving...' : 'Save'}
-          </button>
-        </div>
+      </div>
+      <div className='cl-btns'>
+        <button
+          className={`save-btn btn ${isLoading ? 'loading' : ''}`}
+          onClick={handleSaveClick}
+          disabled={!hasChanges || isLoading}
+        >
+          {isLoading ? 'Saving...' : 'Save'}
+        </button>
       </div>
     </div>
   );

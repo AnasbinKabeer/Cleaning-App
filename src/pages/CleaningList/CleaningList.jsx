@@ -4,8 +4,15 @@ import { IoIosAddCircleOutline } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import ReactToPrint from 'react-to-print';
 import Nd from '../../assets/ND-Header.png';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { app } from '../../firebase/config'; // Assuming the path is correct
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const db = getFirestore(app);
 
@@ -22,59 +29,66 @@ function CleaningList() {
   const [permanentData, setPermanentData] = useState([]);
   const [filteredPermanentData, setFilteredPermanentData] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState('Masjid'); // Default selected location
+  const [isEditing, setIsEditing] = useState(null); // Track editing row for generated data
+  const [editedName, setEditedName] = useState(''); // Track edited name for generated data
+  const [isEditingPermanent, setIsEditingPermanent] = useState(null); // Track editing row for permanent data
+  const [editedNamePermanent, setEditedNamePermanent] = useState(''); // Track edited name for permanent data
+  const [loading, setLoading] = useState(true); // Loading state
 
-  // Fetch data from generatedList collection
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const ref = collection(db, 'generatedList'); // Reference the collection
-        const querySnapshot = await getDocs(ref); // Get documents snapshot
-        const fetchedData = [];
-        querySnapshot.forEach(doc => {
-          const location = doc.id; // Get location name from document ID
-          const locationData = doc.data().data || []; // Handle empty array
+  // Function to fetch data from generatedList collection
+  const fetchGeneratedData = async () => {
+    setLoading(true);
+    try {
+      const ref = collection(db, 'generatedList'); // Reference the collection
+      const querySnapshot = await getDocs(ref); // Get documents snapshot
+      const fetchedData = [];
+      querySnapshot.forEach(doc => {
+        const location = doc.id; // Get location name from document ID
+        const locationData = doc.data().data || []; // Handle empty array
 
-          locationData.forEach(item => {
-            const place = item.place;
-            const assignedStudents = item.assignedStudents || []; // Handle empty array
-            const studentNames = assignedStudents.map(student => student.name).join(', '); // Extract and join student names
+        locationData.forEach(item => {
+          const place = item.place;
+          const assignedStudents = item.assignedStudents || []; // Handle empty array
+          const studentNames = assignedStudents.map(student => student.name).join(', '); // Extract and join student names
 
-            fetchedData.push({ location, place, studentNames });
-          });
+          fetchedData.push({ location, place, studentNames, docId: doc.id, itemId: item.place }); // Include document and item ID for updates
         });
-        setData(fetchedData);
-        setFilteredData(fetchedData.filter(item => item.location === 'Masjid')); // Apply default filter
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+      });
+      setData(fetchedData);
+      setFilteredData(fetchedData.filter(item => item.location === 'Masjid')); // Apply default filter
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+    setLoading(false);
+  };
 
-    getData();
-  }, []);
+  // Function to fetch data from permanentList collection
+  const fetchPermanentData = async () => {
+    setLoading(true);
+    try {
+      const ref = collection(db, 'permanentList'); // Reference the permanentList collection
+      const querySnapshot = await getDocs(ref); // Get documents snapshot
+      const fetchedPermanentData = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const cleaningArea = data.cleaningArea;
+        const cleaningCategory = data.cleaningCategory;
+        const students = data.students;
 
-  // Fetch data from permanentList collection
+        fetchedPermanentData.push({ cleaningArea, cleaningCategory, students, docId: doc.id }); // Include document ID for updates
+      });
+      setPermanentData(fetchedPermanentData);
+      setFilteredPermanentData(fetchedPermanentData.filter(item => item.cleaningCategory === 'Masjid')); // Apply default filter
+    } catch (error) {
+      console.error('Error fetching permanent list data:', error);
+    }
+    setLoading(false);
+  };
+
+  // Fetch data on component mount
   useEffect(() => {
-    const getPermanentData = async () => {
-      try {
-        const ref = collection(db, 'permanentList'); // Reference the permanentList collection
-        const querySnapshot = await getDocs(ref); // Get documents snapshot
-        const fetchedPermanentData = [];
-        querySnapshot.forEach(doc => {
-          const data = doc.data();
-          const cleaningArea = data.cleaningArea;
-          const cleaningCategory = data.cleaningCategory;
-          const students = data.students;
-
-          fetchedPermanentData.push({ cleaningArea, cleaningCategory, students });
-        });
-        setPermanentData(fetchedPermanentData);
-        setFilteredPermanentData(fetchedPermanentData.filter(item => item.cleaningCategory === 'Masjid')); // Apply default filter
-      } catch (error) {
-        console.error('Error fetching permanent list data:', error);
-      }
-    };
-
-    getPermanentData();
+    fetchGeneratedData();
+    fetchPermanentData();
   }, []);
 
   const handleFilterClick = (location) => {
@@ -93,7 +107,60 @@ function CleaningList() {
     }
   };
 
+  const handleEditClick = (index, studentNames) => {
+    setIsEditing(index);
+    setEditedName(studentNames);
+  };
+
+  const handleSaveClick = async (index, docId, itemId) => {
+    const newData = [...data];
+    newData[index].studentNames = editedName;
+    setData(newData);
+    setIsEditing(null);
+
+    // Update Firestore document
+    try {
+      const docRef = doc(db, 'generatedList', docId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const docData = docSnap.data();
+        const updatedData = docData.data.map(item => {
+          if (item.place === itemId) {
+            item.assignedStudents = editedName.split(', ').map(name => ({ name }));
+          }
+          return item;
+        });
+        await updateDoc(docRef, { data: updatedData });
+        await fetchGeneratedData(); // Re-fetch data after update
+      }
+    } catch (error) {
+      console.error('Error updating document:', error);
+    }
+  };
+
+  const handleEditClickPermanent = (index, students) => {
+    setIsEditingPermanent(index);
+    setEditedNamePermanent(students.join(', '));
+  };
+
+  const handleSaveClickPermanent = async (index, docId) => {
+    const newData = [...permanentData];
+    newData[index].students = editedNamePermanent.split(', ');
+    setPermanentData(newData);
+    setIsEditingPermanent(null);
+
+    // Update Firestore document
+    try {
+      const docRef = doc(db, 'permanentList', docId);
+      await updateDoc(docRef, { students: newData[index].students });
+      await fetchPermanentData(); // Re-fetch data after update
+    } catch (error) {
+      console.error('Error updating document:', error);
+    }
+  };
+
   let lastIndex = 0;
+  const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
   return (
     <div className='cl-container'>
@@ -105,7 +172,7 @@ function CleaningList() {
           </div>
         </div>
         <div className="right-uppermain">
-          <button className="Btn-add" onClick={handleGenerate}>Generate New<IoIosAddCircleOutline className='add-icon' /></button>
+          <Button variant="contained" color="success" onClick={handleGenerate} sx={{ borderRadius: '10px'}} size="large"> Generate New <IoIosAddCircleOutline className='add-icon' /></Button>
         </div>
       </div>
 
@@ -119,65 +186,130 @@ function CleaningList() {
         </div>
 
         <div className="table-data" ref={tableRef}>
-          {/* Table data */}
-          <div className="nd-header"><img src={Nd} width={"100%"} alt="" /></div>
+          {/* Show loading spinner while data is being fetched */}
+          {loading ? (
+            <div className="loading-spinner">
+              <CircularProgress />loading...
+            </div>
+          ) : (
+            <>
+              <div className="nd-header"><img src={Nd} width={"100%"} alt="" /></div>
 
-          <center className='tablee'>
-            <h1 className='category'>{selectedLocation}</h1>
-            <table>
-              <thead>
-                <tr>
-                  <th className='cl-t-main-no'>No</th>
-                  <th className='t-main-place'>Cleaning Place</th>
-                  <th className='t-main-place'>Name</th>
-                  <th className='t-main-edit'>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((item, index) => {
-                  lastIndex = index + 1; // Update the variable with the current index
-                  return (
-                    <tr key={index}>
-                      <td className='cl-t-no'>{index + 1 + ")"}</td>
-                      <td className='cl-t-place'>{item.place}</td>
-                      <td className='colun'>:</td>
-                      <td className='cl-t-name'>{item.studentNames}</td>
-                      <td className='cl-t-edit'>
-                        <input className='tickbox' type="checkbox" defaultChecked={item.status} />
-                      </td>
+              <center className='tablee'>
+                <h1 className='category'>{selectedLocation}</h1>
+                <table>
+                  <thead>
+                    <tr>
+                      <th className='cl-t-main-no'>No</th>
+                      <th className='t-main-place'>Cleaning Place</th>
+                      <th className='t-main-place '>Name</th>
+                      <th className='cl-t-action'>Edit</th>
+                      <th className='cl-t-action'>Check</th>
                     </tr>
-                  );
-                })}
+                  </thead>
+                  <tbody>
+                    {filteredData.map((item, index) => {
+                      lastIndex = index + 1; // Update lastIndex here
+                      return (
+                        <tr key={index}>
+                          <td className='cl-t-no'>{lastIndex + ")"}</td>
+                          <td className='cl-t-place'>{item.place}</td>
+                          <td className='colun'>:</td>
+                          <td className='cl-t-name'>
+                            {isEditing === index ? (
+                              <TextField
+                                value={editedName}
+                                onChange={(e) => setEditedName(e.target.value)}
+                                size="small"
+                              />
+                            ) : (
+                              item.studentNames
+                            )}
+                          </td>
+                          <td className='cl-t-edit'>
+                            {isEditing === index ? (
+                              <IconButton
+                                color="primary"
+                                onClick={() => handleSaveClick(index, item.docId, item.itemId)}
+                              >
+                                <SaveIcon />
+                              </IconButton>
+                            ) : (
+                              <IconButton
+                                color="default"
+                                onClick={() => handleEditClick(index, item.studentNames)}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            )}
+                          </td>
+                          <td className='cl-t-edit'>
+                            <Checkbox {...label} size="small" />
+                          </td>
+                        </tr>
+                      );
+                    })}
 
-                {filteredPermanentData.map((item, index) => (
-                  <tr key={index}>
-                    <td className='cl-t-no'>{lastIndex + index + 1 + ")"}</td>
-                    <td className='cl-t-place'>{item.cleaningArea}</td>
-                    <td className='colun'>:</td>
-                    <td className='cl-t-name'>{item.students.join(", ")}</td>
-                    <td className='cl-t-edit'>
-                      <input type="checkbox" defaultChecked={item.status} />
-                    </td>
-                  </tr>
-                ))}
-
-              </tbody>
-            </table>
-          </center>
+                    {filteredPermanentData.map((item, index) => {
+                      return (
+                        <tr key={index}>
+                          <td className='cl-t-no'>{lastIndex +index+1+ ")"}</td>
+                          <td className='cl-t-place'>{item.cleaningArea}</td>
+                          <td className='colun'>:</td>
+                          <td className='cl-t-name'>
+                            {isEditingPermanent === index ? (
+                              <TextField
+                                value={editedNamePermanent}
+                                onChange={(e) => setEditedNamePermanent(e.target.value)}
+                                size="small"
+                              />
+                            ) : (
+                              item.students.join(", ")
+                            )}
+                          </td>
+                          <td className='cl-t-edit'>
+                            {isEditingPermanent === index ? (
+                              <IconButton
+                                color="primary"
+                                onClick={() => handleSaveClickPermanent(index, item.docId)}
+                              >
+                                <SaveIcon />
+                              </IconButton>
+                            ) : (
+                              <IconButton
+                                color="default"
+                                onClick={() => handleEditClickPermanent(index, item.students)}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            )}
+                          </td>
+                          <td className='cl-t-edit'>
+                            <Checkbox {...label} size="small" />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </center>
+            </>
+          )}
         </div>
+      </div>
 
-        <div className='t-btns'>
-          <button className="Csubmit-btn btn">Submit</button>
-          <ReactToPrint
-            trigger={() => (
-              <button className="Cprint-btn btn">Print</button>
-            )}
-            content={() => tableRef.current}
-          />
-
-          {/* Submit button or other buttons */}
-          {/* <button className='submit-btn btn'>Submit</button> */}
-        </div>
+      <div className='cl-btns'>
+        <Button variant="contained" color="primary">
+          Submit
+        </Button>
+        <ReactToPrint
+          trigger={() => (
+            <Button variant="contained" color="error">
+              Print
+            </Button>
+          )}
+          content={() => tableRef.current}
+        />
       </div>
     </div>
   );

@@ -112,7 +112,7 @@ function PermanentForm() {
           const cleaningPlaceData = cleaningPlaceDocSnap.data().cleaningPlace;
           const updatedCleaningPlaces = cleaningPlaceData.map(place => {
             if (place.place === selectedCleaningArea) {
-              return { ...place, isPermanent: true };
+              return { ...place, isPermanet: true };
             }
             return place;
           });

@@ -23,11 +23,15 @@ const Navbar = () => {
 
   return (
     <div className="nav-bar">
+      <div className='up'>
+
       <div className="logo-bar">SOCIAL CLIQUE </div>
+
+
       <div className="links-bar">
         <Link to="/" onClick={() => handleClick('/')}>
           <div className={active === '/' ? 'link active' : 'link'}>
-            <span><MdSpaceDashboard className='hk' /></span> Dashboard
+            <span><MdSpaceDashboard className='hk' /></span> Dashboard 
           </div>
         </Link>
 
@@ -54,14 +58,18 @@ const Navbar = () => {
             Cleaning area
           </div>
         </Link>
-        <div className='po'>
+   
+    
+      </div>  
+
+      </div>
+      
+      <div className='po'>
         <div className="logout"  onClick={() => auth.signOut()}> Logout <BiLogOut className='hd' /></div>
         </div>
-    
-      </div>
-
     </div>
   )
 }
 
 export default Navbar
+  
