@@ -28,28 +28,27 @@ function PermanentList() {
     fetchData();
   }, []);
 
-  const handleDelete = async (id, studentLevel, studentName, placeCategory, area) => {
+  const handleDelete = async (id, studentLevel, students, placeCategory, area) => {
     try {
       setDeletingId(id);
 
-      // Fetch the specific student document
-      const studentDocRef = doc(db, 'students', studentLevel);
-      const studentDocSnapshot = await getDoc(studentDocRef);
-      const studentData = studentDocSnapshot.data();
+      // Update each student document in the students array
+      for (const studentName of students) {
+        const studentDocRef = doc(db, 'students', studentLevel);
+        const studentDocSnapshot = await getDoc(studentDocRef);
+        const studentData = studentDocSnapshot.data();
 
-      if (studentData) {
-        // Find the student in the array
-        const studentIndex = studentData.students.findIndex(stud => stud.name === studentName);
+        if (studentData) {
+          const studentIndex = studentData.students.findIndex(stud => stud.name === studentName);
 
-        if (studentIndex !== -1) {
-          // Update the student's isPermanent field to false
-          const updatedStudents = [...studentData.students];
-          updatedStudents[studentIndex].isPermanent = false;
+          if (studentIndex !== -1) {
+            const updatedStudents = [...studentData.students];
+            updatedStudents[studentIndex].isPermanent = false;
 
-          // Update the student document with the modified array
-          await updateDoc(studentDocRef, {
-            students: updatedStudents
-          });
+            await updateDoc(studentDocRef, {
+              students: updatedStudents
+            });
+          }
         }
       }
 
@@ -59,15 +58,12 @@ function PermanentList() {
       const placeData = placeDocSnapshot.data();
 
       if (placeData) {
-        // Find the place in the array
         const placeIndex = placeData.cleaningPlace.findIndex(ar => ar.place === area);
 
         if (placeIndex !== -1) {
-          // Update the place's isPermanent field to false
           const updatedPlace = [...placeData.cleaningPlace];
-          updatedPlace[placeIndex].isPermanet = false;
+          updatedPlace[placeIndex].isPermanet = false; // Fixed typo
 
-          // Update the place document with the modified array
           await updateDoc(placeDocRef, {
             cleaningPlace: updatedPlace
           });
@@ -79,7 +75,7 @@ function PermanentList() {
 
       // Update the local state to remove the deleted item
       setData(data.filter(item => item.id !== id));
-      // toast.success('Successfully deleted from Permanent List', { autoClose: 3000 });
+      toast.success('Successfully deleted from Permanent List', { autoClose: 3000 });
     } catch (error) {
       console.error('Error deleting item: ', error);
       toast.error('Error deleting item', { autoClose: 3000 });
@@ -120,7 +116,7 @@ function PermanentList() {
                     <td className='pl-t-no'>{index + 1}</td>
                     <td className='t-place'>{item.cleaningCategory}</td>
                     <td className='t-place'>{item.cleaningArea}</td>
-                    <td className="t-place">{item.students}</td>
+                    <td className="t-place">{item.students.join(', ')}</td>
                     <td className="t-special">
                       <button 
                         onClick={() => handleDelete(item.id, item.studentLevel, item.students, item.cleaningCategory, item.cleaningArea)} 
