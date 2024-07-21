@@ -124,35 +124,21 @@ const Generate = () => {
 
   const handleCheck = async () => {
     setChecking(true);
+  
+    // Retrieve the students to be assigned from localStorage
     let tobeassignedsudentsoflevel4 = JSON.parse(localStorage.getItem('tobeassignedsudentsoflevel4')) || [];
-
-    let assignedStudents = [];
-    cleaningPlaces.forEach(place => {
-      const placeList = JSON.parse(localStorage.getItem(`${place}List`));
-      if (placeList) {
-        placeList.forEach(p => {
-          if (p.assignedStudents && p.assignedStudents.length > 0) {
-            assignedStudents = assignedStudents.concat(p.assignedStudents);
-          }
-        });
-      }
-    });
-
-    tobeassignedsudentsoflevel4 = tobeassignedsudentsoflevel4.filter(remainingStudent => {
-      return !assignedStudents.some(assignedStudent => assignedStudent.name === remainingStudent.name);
-    });
-
-    tobeassignedsudentsoflevel4 = shuffleArray(tobeassignedsudentsoflevel4);
-    console.log(tobeassignedsudentsoflevel4);
-
+    let tobeassignedsudentsoflevel5 = JSON.parse(localStorage.getItem('tobeassignedsudentsoflevel5')) || [];
+    let remainingStudents = tobeassignedsudentsoflevel4.concat(tobeassignedsudentsoflevel5);
+  
+    // Assign remaining students to empty places
     const allUpdatedPlaces = cleaningPlaces.map(place => {
       const placeList = JSON.parse(localStorage.getItem(`${place}List`));
       let studentIndex = 0;
       placeList.forEach(p => {
         if (p.assignedStudents.length === 0) {
           let assignedStudents = [];
-          for (let i = 0; i < p.quot && studentIndex < tobeassignedsudentsoflevel4.length; i++) {
-            assignedStudents.push(tobeassignedsudentsoflevel4[studentIndex]);
+          for (let i = 0; i < p.quot && studentIndex < remainingStudents.length; i++) {
+            assignedStudents.push(remainingStudents[studentIndex]);
             studentIndex++;
           }
           p.assignedStudents = assignedStudents;
@@ -161,12 +147,12 @@ const Generate = () => {
       localStorage.setItem(`${place}List`, JSON.stringify(placeList));
       return { place, placeList };
     });
-
+  
     console.log("All updated data:", allUpdatedPlaces);
     setSubmitEnabled(true);
     setChecking(false);
   };
-
+  
   const handleSubmit = async () => {
     setSubmitLoading(true);
     const generatedData = {};
