@@ -81,6 +81,8 @@ const Generate = () => {
         level4general = students.slice(0, 25);
         tobeassignedsudentsoflevel4 = students.slice(25);
         localStorage.setItem('tobeassignedsudentsoflevel4', JSON.stringify(tobeassignedsudentsoflevel4));
+        console.log('level4general',level4general)
+        console.log('tobeassignedsudentsoflevel4',tobeassignedsudentsoflevel4)
       } else if (level === "level5") {
         level4general = students.slice(0, 25);
         tobeassignedsudentsoflevel5 = students.slice(25);
@@ -123,7 +125,6 @@ const Generate = () => {
   const getAvailableLevels = (place) => {
     return levels.filter(level => !Object.values(selectedLevels).includes(level) || selectedLevels[place] === level);
   };
-
   const handleCheck = async () => {
     setChecking(true);
   
@@ -137,7 +138,7 @@ const Generate = () => {
       const placeList = JSON.parse(localStorage.getItem(`${place}List`));
       let studentIndex = 0;
       placeList.forEach(p => {
-        if (p.assignedStudents.length === 0) {
+        if (p.assignedStudents.length === 0 && studentIndex < remainingStudents.length) {
           let assignedStudents = [];
           for (let i = 0; i < p.quot && studentIndex < remainingStudents.length; i++) {
             assignedStudents.push(remainingStudents[studentIndex]);
@@ -146,6 +147,10 @@ const Generate = () => {
           p.assignedStudents = assignedStudents;
         }
       });
+  
+      // Remove the assigned students from remainingStudents
+      remainingStudents = remainingStudents.slice(studentIndex);
+  
       localStorage.setItem(`${place}List`, JSON.stringify(placeList));
       return { place, placeList };
     });
@@ -154,6 +159,7 @@ const Generate = () => {
     setSubmitEnabled(true);
     setChecking(false);
   };
+  
   
   const handleSubmit = async () => {
     setSubmitLoading(true);
