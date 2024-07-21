@@ -134,3 +134,6 @@ flex-direction: column;
 }
 /* CARDS */
 
+.listofunassigned{
+ font-size: 12px; 
+}
