@@ -123,7 +123,7 @@ function PermanentList() {
                     <td className="t-place">{item.students}</td>
                     <td className="t-special">
                       <button 
-                        onClick={() => handleDelete(item.id, item.studentLevel, item.student, item.cleaningCategory, item.cleaningArea)} 
+                        onClick={() => handleDelete(item.id, item.studentLevel, item.students, item.cleaningCategory, item.cleaningArea)} 
                         className={`delete ${deletingId === item.id ? 'deleting' : ''}`}>
                         {deletingId === item.id ? 'Deleting...' : 'Delete'}
                       </button>
