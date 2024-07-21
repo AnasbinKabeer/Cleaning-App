@@ -59,7 +59,7 @@ const Generate = () => {
 
   const handleGenerate = async (place) => {
     setLoadingButton(place);
-    const level = selectedLevels[place];
+    const level = selectedLevels[place]; // Assumed you have selectedLevels state
     if (!level) {
       toast.error(`No level selected for ${place}`, { autoClose: 2500 });
       setLoadingButton(null);
@@ -75,17 +75,19 @@ const Generate = () => {
 
       let level4general = [];
       let tobeassignedsudentsoflevel4 = [];
-      
-      if (level === "level4" || level === "level5") {
+      let tobeassignedsudentsoflevel5 = [];
+
+      if (level === "level4") {
         level4general = students.slice(0, 25);
         tobeassignedsudentsoflevel4 = students.slice(25);
         localStorage.setItem('tobeassignedsudentsoflevel4', JSON.stringify(tobeassignedsudentsoflevel4));
-        console.log('level4g',level4general)
-        console.log('level4Next',tobeassignedsudentsoflevel4)
+      } else if (level === "level5") {
+        level4general = students.slice(0, 25);
+        tobeassignedsudentsoflevel5 = students.slice(25);
+        localStorage.setItem('tobeassignedsudentsoflevel5', JSON.stringify(tobeassignedsudentsoflevel5));
       } else {
         level4general = students.slice(2);
       }
-      
 
       let assignedPlaces = [];
       let studentIndex = 0;

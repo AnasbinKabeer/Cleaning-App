@@ -196,7 +196,7 @@ function CleaningList() {
               <div className="nd-header"><img src={Nd} width={"100%"} alt="" /></div>
 
               <center className='tablee'>
-                <h1 className='category'>{selectedLocation}</h1>
+                <h1 className='category'>{selectedLocation} </h1>
                 <table>
                   <thead>
                     <tr>
